@@ -1,5 +1,5 @@
 # Caboto
-Caboto, the Kubernetes semantic analysis toolkit. It provides a lightweight library for semantically analyse 
+Caboto, the Kubernetes semantic analysis toolkit. It contains a lightweight Python library for semantic analysis of 
 plain Kubernetes manifests without running a cluster.  
 Internally, Caboto represents all K8s objects in a graph structure based on [NetworkX](https://networkx.org/) which allows following edges and make sense
 of the relations between objects.

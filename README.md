@@ -16,10 +16,10 @@ Please call `caboto.api.create_graph_from_path(path)` which constructs the Cabot
 all yaml files from the path. Afterwards discover and represent all supported relations 
 with `caboto.api.discover_relations(...)`.  
 
-The idea is to prepare a collection of build-in analysis functions, e.g.
-* `list_applications(...)` - returns a list of all applications, and their associated objects
-* `list_containerimages(...)` - returns a list of all container images, and the Pods running them
-* `list_services(...)` - returns a list of all Kubernetes service objects, and the Pods serving them
+The idea is to prepare a collection of build-in analysis functions, e.g.  
+* `list_applications(...)` - returns a list of all applications, and their associated objects  
+* `list_containerimages(...)` - returns a list of all container images, and the Pods running them  
+* `list_services(...)` - returns a list of all Kubernetes service objects, and the Pods serving them  
 A full list of build-in analysis functions can be found in the documentation.
   
 ## CLI

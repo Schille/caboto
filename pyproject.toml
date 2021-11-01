@@ -1,0 +1,16 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "Caboto, the Kubernetes semantic analysis tool"
+description = "A tool for static semantic analysis of Kubernetes manifest resources"
+version = "0.1.0"
+readme = "README.md"
+authors = ["Michael Schilonka"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+networkx = "^2.6"
+PyYAML = "^6.0"
+matplotlib = "^3.4.3"

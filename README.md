@@ -34,7 +34,7 @@ path using the `--manifests/-m` option.
 Run an analysis function with the `--run/-r` argument plus the function name, like so 
 `python caboto -r list_applications`
 
-The Coboto graph for an average Kubernetes project may look like this:
+The Caboto graph for an average Kubernetes project may look like this:
 ![The Coboto graph](docs/static/img/graph_1.png)
 
 ## Why Caboto?

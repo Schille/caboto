@@ -1,4 +1,4 @@
-from entities import Application, ContainerImage, Label, Namespace
+from entities import Application, ContainerImage, Host, Label, Namespace
 
 
 def set_namespace(graph):
@@ -85,6 +85,36 @@ def set_containerimages(graph):
                     graph.add_edge(node, cinode, label="runs")
 
 
+def set_ingressbackends(graph):
+    for node, data in list(graph.nodes(data=True)):
+        if data["type"] != "Ingress":
+            continue
+        spec = data["data"].specs.spec
+        if spec and spec.rules:
+            for rule in spec.rules:
+                hnode = Host(rule["host"]).add_as_node(graph)
+                graph.add_edge(node, hnode, label="hosts")
+                http = rule.get("http")
+                if http:
+                    paths = http.get("paths")
+                    if paths:
+                        for path in paths:
+                            backend = path.get("backend")
+                            path = path.get("path")
+                            if backend:
+                                try:
+                                    service_name = backend["service"]["name"]
+                                except KeyError:
+                                    service_name = backend.get("serviceName")
+                            if service_name:
+                                try:
+                                    # check if does this service node exist
+                                    graph.nodes[f"Service:{service_name}"]
+                                except KeyError:
+                                    continue
+                                graph.add_edge(f"Service:{service_name}", node, label="serves", path=path)
+
+
 RELATIONS = {
     "namespace": set_namespace,
     "labels": set_labels,
@@ -92,4 +122,5 @@ RELATIONS = {
     "selectors": set_selectors,
     "applications": set_applications,
     "containerimages": set_containerimages,
+    "ingressbackends": set_ingressbackends,
 }

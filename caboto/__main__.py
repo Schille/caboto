@@ -17,8 +17,15 @@ def dir_path(_path):
 
 parser = argparse.ArgumentParser(description="Caboto Kubernetes semantic analysis tool.")
 parser.add_argument("--manifests", "-m", type=dir_path, default=".", help="Path to the manifests directory.")
-parser.add_argument("--plot", "-p", action="store_true", help="Plot the graph using matplotlib.")
+parser.add_argument("--plot", "-p", help="Plot the graph using matplotlib.", action="store_true")
+parser.add_argument("--exclude", "-e", help="Exclude this entities from plotting")
 parser.add_argument("--run", "-r", help="Run a function from the Caboto API module.")
+parser.add_argument(
+    "--args",
+    "-a",
+    help="Set function arguments comma separated in key-value style (e.g. key:value,key1:value)"
+    " and only together with --run/-r",
+)
 
 
 if __name__ == "__main__":
@@ -26,7 +33,17 @@ if __name__ == "__main__":
     api.create_graph_from_path(args.manifests)
     api.discover_relations()
     if args.run:
+        if args.args:
+            _args = {item.split(":")[0]: item.split(":", 1)[1] for item in str(args.args).split(",")}
+            print(_args)
+        else:
+            _args = {}
+
         func = getattr(api, args.run)
-        pprint(func())
+        pprint(func(**_args))
     if args.plot:
-        api.plot_graph()
+        if args.exclude:
+            excluded = args.exclude.split(",")
+        else:
+            excluded = []
+        api.plot_graph(excluded)

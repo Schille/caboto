@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 
-WEIGHTS = {"pod": 250, "deployment": 200, "service": 120, "ingress": 60, "statefulset": 200, "namespace": 400}
+WEIGHTS = {"pod": 450, "deployment": 200, "service": 220, "ingress": 120, "statefulset": 200, "namespace": 500}
 DEFAULT_WEIGHT = 20
 
 COLORS = {"pod": 1.223, "deployment": 0.571, "service": 0.33, "ingress": 0.942, "statefulset": 0.571}

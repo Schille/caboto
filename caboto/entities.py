@@ -123,3 +123,7 @@ class Application(KeyEntity):
 
 class ContainerImage(KeyEntity):
     pass
+
+
+class Host(KeyEntity):
+    pass

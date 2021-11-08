@@ -32,15 +32,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     api.create_graph_from_path(args.manifests)
     api.discover_relations()
+    print(f"Imported: {api.CABOTO_GRAPH.number_of_nodes()} nodes")
+    print(f"Created: {api.CABOTO_GRAPH.number_of_edges()} edges")
     if args.run:
+        func = getattr(api, args.run)
         if args.args:
             _args = {item.split(":")[0]: item.split(":", 1)[1] for item in str(args.args).split(",")}
-            print(_args)
+            pprint(func(**_args))
         else:
-            _args = {}
+            pprint(func())
 
-        func = getattr(api, args.run)
-        pprint(func(**_args))
     if args.plot:
         if args.exclude:
             excluded = args.exclude.split(",")

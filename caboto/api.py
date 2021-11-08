@@ -4,9 +4,10 @@ from typing import List
 import yaml
 from drawing import draw_graph
 from graph import CabotoGraph, K8sData, get_caboto_graph
+from utils import MEMORY_UNITS, normalize_cpu, normalize_memory_to_bytes
 
 # the global Caboto graph structure which holds all Kubernetes entities and relations
-CABOTO_GRAPH: CabotoGraph = None
+CABOTO_GRAPH: CabotoGraph
 
 
 # decorate api functions with this primer to make sure Caboto graph is loaded
@@ -19,27 +20,48 @@ def caboto_graph_required(func):
     return wrapper
 
 
+def add_to_caboto(manifests: List[K8sData]) -> None:
+    global CABOTO_GRAPH
+    if "CABOTO_GRAPH" in globals():
+        CABOTO_GRAPH.create_entities(manifests)
+    else:
+        CABOTO_GRAPH = get_caboto_graph(manifests)
+
+
 #
 # Functions to create and manage the Caboto graph
 #
+def create_graph_from_dict(doc: dict) -> None:
+    manifest = K8sData(**doc)
+    add_to_caboto([manifest])
+
+
+def create_graph_from_string(val: str) -> None:
+    """Loads Kubernetes manifest from yaml formatted string input and constructs a Caboto graph. Extend the graph
+    running this function multiple times."""
+    try:
+        file = yaml.safe_load_all(val)
+    except yaml.YAMLError as exc:
+        print(exc)
+        raise exc
+    else:
+        for doc in file:
+            create_graph_from_dict(doc)
 
 
 def create_graph_from_path(path: Path) -> None:
     """Loads recursively all Kubernetes manifests with a yaml file extension in the given directory and constructs a
     Caboto graph data structure."""
-    manifests = []
     for p in path.rglob("*.yaml"):
         with open(p.absolute(), "r") as stream:
             try:
                 file = yaml.safe_load_all(stream)
             except yaml.YAMLError as exc:
                 print(exc)
-            for doc in file:
-                manifests.append(K8sData(**doc))
-    if len(manifests) == 0:
-        raise ValueError(f"Could not load a yaml file in {path.absolute()}")
-    global CABOTO_GRAPH
-    CABOTO_GRAPH = get_caboto_graph(manifests)
+                raise exc
+            else:
+                for doc in file:
+                    create_graph_from_dict(doc)
 
 
 @caboto_graph_required
@@ -192,3 +214,43 @@ def list_hosts(flat: bool = False) -> List:
                 )
             )
     return list(hosts)
+
+
+@caboto_graph_required
+def get_pods() -> List:
+    all_pods = [pod for pod, d in CABOTO_GRAPH.nodes(data=True) if d["type"] == "Pod"]
+    return all_pods
+
+
+@caboto_graph_required
+def sum_cpu_requests(default: str = "250m") -> str:
+    """Returns the fractional amount of CPUs (normalized to 2 decimal places) requested across all Pods"""
+    pods = get_pods()
+    cpu_requests = []
+    for pod in pods:
+        pnode = CABOTO_GRAPH.nodes[pod]
+        if data := pnode.get("data"):
+            for container in data.specs.spec.containers:
+                try:
+                    requests = container["resources"]["requests"]["cpu"]
+                    cpu_requests.append(normalize_cpu(requests))
+                except (KeyError, TypeError):
+                    cpu_requests.append(normalize_cpu(default))
+    return float(f"{sum(cpu_requests):.2f}")
+
+
+@caboto_graph_required
+def sum_memory_requests(default: str = "128M", unit: str = "M") -> str:
+    """Returns the amount of memory requested across all Pods. Defaults to MB as unit."""
+    pods = get_pods()
+    memory_requests = []
+    for pod in pods:
+        pnode = CABOTO_GRAPH.nodes[pod]
+        if data := pnode.get("data"):
+            for container in data.specs.spec.containers:
+                try:
+                    requests = container["resources"]["requests"]["memory"]
+                    memory_requests.append(normalize_memory_to_bytes(requests))
+                except (KeyError, TypeError):
+                    memory_requests.append(normalize_memory_to_bytes(default))
+    return f"{sum(memory_requests) / MEMORY_UNITS.get(unit):.2f}{unit}"

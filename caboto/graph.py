@@ -21,9 +21,9 @@ class CabotoGraph(nx.DiGraph):
     def __init__(self, manifests: List[K8sData] = None, *args, **kwargs):
         super(CabotoGraph, self).__init__(*args, **kwargs)
         if manifests:
-            self._create_entities(manifests)
+            self.create_entities(manifests)
 
-    def _create_entities(self, manifests: List[K8sData]):
+    def create_entities(self, manifests: List[K8sData]):
         for data in manifests:
             resource_kind = data.kind
             if data.kind is None:

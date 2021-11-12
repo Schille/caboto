@@ -5,7 +5,7 @@ Internally, Caboto represents all K8s objects in a graph structure based on [Net
 of the relations between objects.
 
 ## Usage
-To start with, load plain manifests files into Caboto. Please mind that you will have to generate *Helm chats* into plain Kubernetes
+To start with, load plain manifests files into Caboto. Please mind that you will have to generate *Helm charts* into plain Kubernetes
 manifests (in yaml format) in order to load them.  
 **Hint:** you may render your Helm charts in one yaml file like so:
 ```bash

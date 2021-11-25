@@ -20,6 +20,7 @@ parser.add_argument("--manifests", "-m", type=dir_path, default=".", help="Path 
 parser.add_argument("--plot", "-p", help="Plot the graph using matplotlib.", action="store_true")
 parser.add_argument("--exclude", "-e", help="Exclude this entities from plotting")
 parser.add_argument("--run", "-r", help="Run a function from the Caboto API module.")
+parser.add_argument("--query", "-q", help="Run a query from Caboto's query library.")
 parser.add_argument(
     "--args",
     "-a",
@@ -34,6 +35,12 @@ if __name__ == "__main__":
     api.discover_relations()
     print(f"Imported: {api.CABOTO_GRAPH.number_of_nodes()} nodes")
     print(f"Created: {api.CABOTO_GRAPH.number_of_edges()} edges")
+    if args.query:
+        if args.args:
+            _args = {item.split(":")[0]: item.split(":", 1)[1] for item in str(args.args).split(",")}
+            pprint(api.exec_query(args.query, **_args))
+        else:
+            pprint(api.exec_query(args.query))
     if args.run:
         func = getattr(api, args.run)
         if args.args:

@@ -1,0 +1,12 @@
+{
+  "description": "List all Kubernetes Pods this graph would schedule",
+  "params": {
+    "query": {
+      "==": [
+        "type",
+        "Service"
+      ]
+    }
+  },
+  "func": "search_nodes"
+}

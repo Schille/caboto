@@ -1,0 +1,30 @@
+{
+  "description": "List all Kubernetes Pods that the service from the argument would serve",
+  "args": ["name"],
+  "params": {
+    "source": {
+      "and": [
+        {
+          "==": [
+            "type",
+            "Service"
+          ]
+        },
+        {
+          "eq": [
+            ("data", "name",),
+            "<name>"
+          ]
+        }
+      ]
+    },
+    "target": {
+      "==": [
+        "type",
+        "Pod"
+      ]
+    }
+  },
+  "func": "search_direct_relationships",
+  "flatten": 1
+}

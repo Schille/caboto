@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import List
 
+import networkx_query
 import yaml
 from drawing import draw_graph
 from graph import CabotoGraph, K8sData, get_caboto_graph
-from utils import MEMORY_UNITS, normalize_cpu, normalize_memory_to_bytes
+from utils import MEMORY_UNITS, get_query, normalize_cpu, normalize_memory_to_bytes, replace_query
 
 # the global Caboto graph structure which holds all Kubernetes entities and relations
 CABOTO_GRAPH: CabotoGraph
@@ -217,15 +218,9 @@ def list_hosts(flat: bool = False) -> List:
 
 
 @caboto_graph_required
-def get_pods() -> List:
-    all_pods = [pod for pod, d in CABOTO_GRAPH.nodes(data=True) if d["type"] == "Pod"]
-    return all_pods
-
-
-@caboto_graph_required
 def sum_cpu_requests(default: str = "250m") -> str:
     """Returns the fractional amount of CPUs (normalized to 2 decimal places) requested across all Pods"""
-    pods = get_pods()
+    pods = exec_query("AllPods")
     cpu_requests = []
     for pod in pods:
         pnode = CABOTO_GRAPH.nodes[pod]
@@ -242,7 +237,7 @@ def sum_cpu_requests(default: str = "250m") -> str:
 @caboto_graph_required
 def sum_memory_requests(default: str = "128M", unit: str = "M") -> str:
     """Returns the amount of memory requested across all Pods. Defaults to MB as unit."""
-    pods = get_pods()
+    pods = exec_query("AllPods")
     memory_requests = []
     for pod in pods:
         pnode = CABOTO_GRAPH.nodes[pod]
@@ -254,3 +249,26 @@ def sum_memory_requests(default: str = "128M", unit: str = "M") -> str:
                 except (KeyError, TypeError):
                     memory_requests.append(normalize_memory_to_bytes(default))
     return f"{sum(memory_requests) / MEMORY_UNITS.get(unit):.2f}{unit}"
+
+
+def exec_query(query_name: str, **kwargs) -> list:
+    q = get_query(query_name)
+    _fn = q.get("func")
+    _func = getattr(networkx_query, _fn)
+    _qparams = q.get("params")
+
+    if _args := q.get("args"):
+        if set(_args) == set(kwargs.keys()):
+            for k, v in kwargs.items():
+                _qparams = replace_query(_qparams, f"<{k}>", v)
+        else:
+            raise ValueError(f"The following arguments are missing: {list(set(_args) - set(kwargs.keys()))}")
+
+    _qparams.update({"graph": CABOTO_GRAPH})
+
+    result = _func(**_qparams)
+    if idx := q.get("flatten"):
+        result = [_i[idx] for _i in result]
+    else:
+        result = list(result)
+    return result

@@ -16,6 +16,21 @@ class K8sGraphEntity(object):
             resource_entities.add(self._get_code())
         return self._get_code()
 
+    def __contains__(self, item):
+        return hasattr(self, item)
+
+    def __getattr__(self, item):
+        if _v := self.__dict__.get(item):
+            return _v
+        else:
+            raise AttributeError
+
+    def __getitem__(self, key):
+        if _v := self.__dict__.get(key):
+            return _v
+        else:
+            return KeyError
+
 
 class K8sResource(K8sGraphEntity):
     registry = resource_entities

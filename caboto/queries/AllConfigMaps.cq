@@ -1,0 +1,12 @@
+{
+  "description": "List all Kubernetes ConfigMaps from the Graph",
+  "params": {
+    "query": {
+      "==": [
+        "type",
+        "ConfigMap"
+      ]
+    }
+  },
+  "func": "search_nodes"
+}

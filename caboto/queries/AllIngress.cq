@@ -1,0 +1,12 @@
+{
+  "description": "List all Kubernetes Ingress from the graph",
+  "params": {
+    "query": {
+      "==": [
+        "type",
+        "Ingress"
+      ]
+    }
+  },
+  "func": "search_nodes"
+}

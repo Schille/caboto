@@ -1,0 +1,12 @@
+{
+  "description": "List all Hosts being served",
+  "params": {
+    "query": {
+      "==": [
+        "label",
+        "hosts"
+      ]
+    }
+  },
+  "func": "search_edges"
+}

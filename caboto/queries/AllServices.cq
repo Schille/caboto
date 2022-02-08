@@ -6,7 +6,7 @@
         "type",
         "Service"
       ]
-    }
-  },
-  "func": "search_nodes"
+    },
+    "func": "search_nodes"
+  }
 }

@@ -1,0 +1,25 @@
+{
+  "description": "List all ContainerImages that are exposed under an Ingress route",
+  "params": {
+    "source": {
+      "subquery": {
+        "query": {
+          "==": [
+            "label",
+            "serves"
+          ]
+        },
+        "func": "search_edges",
+        "flatten": 0
+      }
+    },
+    "target": {
+      "==": [
+        "type",
+        "Pod"
+      ]
+    },
+    "func": "search_direct_relationships",
+    "flatten": 1
+  }
+}

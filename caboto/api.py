@@ -1,11 +1,10 @@
 from pathlib import Path
 from typing import List
 
-import networkx_query
 import yaml
 from drawing import draw_graph
 from graph import CabotoGraph, K8sData, get_caboto_graph
-from utils import MEMORY_UNITS, get_query, normalize_cpu, normalize_memory_to_bytes, replace_query
+from utils import MEMORY_UNITS, get_query, normalize_cpu, normalize_memory_to_bytes, replace_query, run_query
 
 # the global Caboto graph structure which holds all Kubernetes entities and relations
 CABOTO_GRAPH: CabotoGraph
@@ -253,8 +252,6 @@ def sum_memory_requests(default: str = "128M", unit: str = "M") -> str:
 
 def exec_query(query_name: str, **kwargs) -> list:
     q = get_query(query_name)
-    _fn = q.get("func")
-    _func = getattr(networkx_query, _fn)
     _qparams = q.get("params")
 
     if _args := q.get("args"):
@@ -264,11 +261,5 @@ def exec_query(query_name: str, **kwargs) -> list:
         else:
             raise ValueError(f"The following arguments are missing: {list(set(_args) - set(kwargs.keys()))}")
 
-    _qparams.update({"graph": CABOTO_GRAPH})
-
-    result = _func(**_qparams)
-    if idx := q.get("flatten"):
-        result = [_i[idx] for _i in result]
-    else:
-        result = list(result)
+    result = run_query(CABOTO_GRAPH, _qparams)
     return result

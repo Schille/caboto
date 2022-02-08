@@ -12,7 +12,10 @@
         },
         {
           "eq": [
-            ("data", "name",),
+            (
+            "data",
+            "name",
+            ),
             "<name>"
           ]
         }
@@ -23,8 +26,8 @@
         "type",
         "Pod"
       ]
-    }
-  },
-  "func": "search_direct_relationships",
-  "flatten": 1
+    },
+    "func": "search_direct_relationships",
+    "flatten": 1
+  }
 }

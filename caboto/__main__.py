@@ -33,8 +33,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     api.create_graph_from_path(args.manifests)
     api.discover_relations()
-    print(f"Imported: {api.CABOTO_GRAPH.number_of_nodes()} nodes")
-    print(f"Created: {api.CABOTO_GRAPH.number_of_edges()} edges")
+    print(api.CABOTO_GRAPH)
     if args.query:
         if args.args:
             _args = {item.split(":")[0]: item.split(":", 1)[1] for item in str(args.args).split(",")}

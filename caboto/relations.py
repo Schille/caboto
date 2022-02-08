@@ -26,7 +26,7 @@ def set_annotations(graph):
 
 
 def set_selectors(graph):
-    for node, data in list(graph.nodes.items()):
+    for node, data in list(graph.nodes(data=True)):
         if hasattr(data["data"], "specs"):
             specs = data["data"].specs.spec
             if specs and specs.selector:
@@ -82,7 +82,13 @@ def set_containerimages(graph):
                 image = container.get("image")
                 if image:
                     cinode = ContainerImage(image).add_as_node(graph)
-                    graph.add_edge(node, cinode, label="runs")
+                    if ports := container.get("ports"):
+                        port_data = {}
+                        for port in ports:
+                            port_data[port["name"]] = port["containerPort"]
+                    else:
+                        port_data = None
+                    graph.add_edge(node, cinode, label="runs", ports=port_data)
 
 
 def set_ingressbackends(graph):
@@ -108,11 +114,17 @@ def set_ingressbackends(graph):
                                     service_name = backend.get("serviceName")
                             if service_name:
                                 try:
-                                    # check if does this service node exist
+                                    # check if this service node exists
                                     graph.nodes[f"Service:{service_name}"]
                                 except KeyError:
                                     continue
                                 graph.add_edge(f"Service:{service_name}", node, label="serves", path=path)
+
+
+def set_container_port(graph):
+    for u, v, data in list(graph.edges(data=True)):
+        if data["label"] != "runs" or data.get("ports") is not None:
+            continue
 
 
 RELATIONS = {
@@ -123,4 +135,5 @@ RELATIONS = {
     "applications": set_applications,
     "containerimages": set_containerimages,
     "ingressbackends": set_ingressbackends,
+    "containerport": set_container_port,
 }

@@ -6,7 +6,7 @@
         "type",
         "ConfigMap"
       ]
-    }
-  },
-  "func": "search_nodes"
+    },
+    "func": "search_nodes"
+  }
 }

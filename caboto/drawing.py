@@ -9,10 +9,10 @@ DEFAULT_COLOR = 0.25
 
 
 def draw_graph(graph, exclude_node_types=[]):
-    req_nodes = [x for x, y in graph.nodes(data=True) if y["type"] not in exclude_node_types]
+    req_nodes = [x for x, y in graph.nodes(data=True) if y.get("type") not in exclude_node_types]
     subgraph = graph.subgraph(req_nodes)
-    node_weights = [WEIGHTS.get(data["type"].lower(), DEFAULT_WEIGHT) for node, data in subgraph.nodes.items()]
-    node_colors = [COLORS.get(data["type"].lower(), DEFAULT_COLOR) for node, data in subgraph.nodes.items()]
+    node_weights = [WEIGHTS.get(data.get("type").lower(), DEFAULT_WEIGHT) for node, data in subgraph.nodes.items()]
+    node_colors = [COLORS.get(data.get("type").lower(), DEFAULT_COLOR) for node, data in subgraph.nodes.items()]
     node_labels = {node: node for node, data in subgraph.nodes.items()}
     pos = nx.random_layout(subgraph)
     nx.draw_networkx_nodes(subgraph, pos, cmap=plt.get_cmap("jet"), node_size=node_weights, node_color=node_colors)
